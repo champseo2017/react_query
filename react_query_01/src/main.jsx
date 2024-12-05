@@ -1,4 +1,4 @@
-import { QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
@@ -7,7 +7,7 @@ import './index.css'
 const queryCache = new QueryCache({
   // ทำงานเมื่อเกิดข้อผิดพลาดในการดึงข้อมูล
   onError: (error) => {
-    console.error('เกิดข้อผิดพลาด:', error)
+    console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error)
   },
   // ทำงานเมื่อดึงข้อมูลสำเร็จ
   onSuccess: (data) => {
@@ -15,9 +15,26 @@ const queryCache = new QueryCache({
   }
 })
 
-// สร้าง QueryClient พร้อมกำหนด queryCache
+// สร้าง MutationCache สำหรับจัดการการเปลี่ยนแปลงข้อมูล
+const mutationCache = new MutationCache({
+  // ทำงานเมื่อเกิดข้อผิดพลาดในการเปลี่ยนแปลงข้อมูล
+  onError: (error) => {
+    console.error('เกิดข้อผิดพลาดในการเปลี่ยนแปลงข้อมูล:', error)
+  },
+  // ทำงานเมื่อเปลี่ยนแปลงข้อมูลสำเร็จ
+  onSuccess: (data) => {
+    console.log('เปลี่ยนแปลงข้อมูลสำเร็จ:', data)
+  },
+  // ทำงานก่อนเริ่มการเปลี่ยนแปลงข้อมูล
+  onMutate: (variables) => {
+    console.log('กำลังจะเริ่มเปลี่ยนแปลงข้อมูล:', variables)
+  }
+})
+
+// สร้าง QueryClient พร้อมกำหนด cache และค่าเริ่มต้น
 const queryClient = new QueryClient({
-  queryCache: queryCache,
+  queryCache,
+  mutationCache,
   defaultOptions: {
     queries: {
       // ตั้งค่าพื้นฐานสำหรับการดึงข้อมูลทั้งหมด
