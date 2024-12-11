@@ -1,7 +1,16 @@
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import './index.css'
+
+// โหลด Devtools แบบ lazy
+const ReactQueryDevtools = lazy(() => 
+  import('@tanstack/react-query-devtools')
+  .then(({ ReactQueryDevtools }) => ({
+      default: ReactQueryDevtools
+  }))
+)
 
 // สร้างตัวจัดการ logger แบบกำหนดเอง
 const logger = {
@@ -63,5 +72,14 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')).render(
   <QueryClientProvider client={queryClient}>
     <App />
+    {/* แสดง Devtools เฉพาะในโหมด development */}
+    {process.env.NODE_ENV === 'development' && (
+                <Suspense fallback={null}>
+                    <ReactQueryDevtools 
+                        initialIsOpen={false}  // ไม่เปิดอัตโนมัติ
+                        position="bottom"      // แสดงด้านล่าง
+                    />
+                </Suspense>
+            )}
   </QueryClientProvider>
 )
